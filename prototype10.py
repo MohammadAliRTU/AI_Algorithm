@@ -119,6 +119,38 @@ class GameAI():
                 self.intersection_level[depth-1] = 0
             return min_eval
 
+
+    def alphabeta(self, depth, alpha, beta, maximizing_player, move):
+        if depth == 0 or self.is_game_over():
+            total_intersection = 0
+            for i in range(11):
+                total_intersection += self.intersection_level[i]
+            return total_intersection
+        if maximizing_player:
+            max_eval = float('-inf')
+            for move in self.get_legal_moves():
+                self.apply_move(move, self.player)
+                eval = self.alphabeta(depth - 1, alpha, beta, False, move)
+                self.undo_move(move)
+                max_eval = max(max_eval, eval)
+                alpha = max(alpha, eval)
+                if beta <= alpha:
+                    break  # β cutoff
+            return max_eval
+        else:
+            min_eval = float('inf')
+            for move in self.get_legal_moves():
+                self.apply_move(move, self.player)
+                eval = self.alphabeta(depth - 1, alpha, beta, True, move)
+                self.undo_move(move)
+                min_eval = min(min_eval, eval)
+                beta = min(beta, eval)
+                if beta <= alpha:
+                    break  # α cutoff
+            return min_eval
+
+
+
     # Undo the move which are not necessary and just we draw for implementation of the algorithm 
     def undo_move(self, move):
         if move in self.drawen_lines['lines']:
